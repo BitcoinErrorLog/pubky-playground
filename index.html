@@ -22,8 +22,7 @@
   <meta name="twitter:description" content="Pubky separates data from presentation. The same user-owned content can power any app format.">
   <meta name="twitter:image" content="https://playground.pubky.org/og-image.png">
   <meta name="twitter:image:alt" content="Pubky Playground: Your Data. Any App.">
-  <link rel="icon" type="image/png" href="/favicon.png">
-  <link rel="apple-touch-icon" href="/favicon.png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -466,7 +465,8 @@
       gap: 8px;
       margin-bottom: 10px;
     }
-    .rd-username { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+    .rd-name { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+    .rd-username { font-size: 0.8rem; color: var(--text-3); }
     .rd-dot { color: var(--text-3); font-size: 0.8rem; }
     .rd-time { font-size: 0.8rem; color: var(--text-3); }
     .rd-title {
@@ -573,6 +573,7 @@
     }
     .tt-author .av { width: 36px; height: 36px; border: 2px solid #fff; }
     .tt-author .name { font-size: 0.9rem; font-weight: 700; }
+    .tt-author .handle { font-size: 0.8rem; color: rgba(255,255,255,0.6); }
     .tt-caption {
       font-size: 0.82rem;
       line-height: 1.4;
@@ -1458,6 +1459,7 @@
               <div class="rd-body">
                 <div class="rd-author-row">
                   ${av(d.author, 28)}
+                  <span class="rd-name">${d.author.name}</span>
                   <span class="rd-username">${d.author.shortPk}</span>
                   <span class="rd-dot">·</span>
                   <span class="rd-time">${d.timestamp}</span>
@@ -1490,7 +1492,8 @@
             <div class="tt-overlay">
               <div class="tt-author">
                 ${av(d.author, 36)}
-                <span class="name">${d.author.shortPk}</span>
+                <span class="name">${d.author.name}</span>
+                <span class="handle">${d.author.shortPk}</span>
               </div>
               <div class="tt-caption">${d.content}</div>
               <div class="tt-tags">${d.tags.map(renderTag).join('')}</div>
