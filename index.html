@@ -1123,13 +1123,21 @@
       .switcher-btn { padding: 8px 10px; font-size: 0.72rem; }
       .switcher-track { overflow-x: auto; -webkit-overflow-scrolling: touch; }
       .frame-wrapper { min-height: auto; }
-      .tt-post { aspect-ratio: 9/14; }
+      .tt-post {
+        width: 100%;
+        aspect-ratio: auto;
+        height: 70vh;
+        max-height: 560px;
+      }
     }
     @media (max-width: 480px) {
       .site-header { padding: 36px 0 20px; }
       .yt-grid { grid-template-columns: 1fr; }
       .pin-grid { grid-template-columns: 1fr 1fr; }
-      .tt-post { aspect-ratio: 9/13; }
+      .tt-post {
+        height: 65vh;
+        max-height: 500px;
+      }
     }
 
     /* ═══ FOOTER ═══ */
