@@ -152,7 +152,9 @@
       border-radius: 10px;
       padding: 3px;
       border: 1px solid var(--border);
+      scrollbar-width: none;
     }
+    .switcher-track::-webkit-scrollbar { display: none; }
     .switcher-pill {
       position: absolute;
       top: 3px;
@@ -1119,11 +1121,15 @@
       .pod-top { flex-direction: column; align-items: center; text-align: center; }
       .pod-cover { width: 160px; height: 160px; }
       .switcher-btn { padding: 8px 10px; font-size: 0.72rem; }
+      .switcher-track { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .frame-wrapper { min-height: auto; }
+      .tt-post { aspect-ratio: 9/14; }
     }
     @media (max-width: 480px) {
       .site-header { padding: 36px 0 20px; }
       .yt-grid { grid-template-columns: 1fr; }
       .pin-grid { grid-template-columns: 1fr 1fr; }
+      .tt-post { aspect-ratio: 9/13; }
     }
 
     /* ═══ FOOTER ═══ */
