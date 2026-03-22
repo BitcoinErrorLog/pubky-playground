@@ -3,7 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pubky Playground: Same Data, Different Interface</title>
+  <title>Pubky Playground: Your Data. Any App.</title>
+  <meta name="description" content="See how the same user-owned Pubky data can power any app format. One post becomes Instagram, X, Reddit, TikTok. One collection becomes a podcast, channel, album, board, or blog.">
+  <meta property="og:title" content="Pubky Playground: Your Data. Any App.">
+  <meta property="og:description" content="Pubky separates data from presentation. The same user-owned content can power any app format.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://playground.pubky.org">
+  <meta property="og:image" content="https://playground.pubky.org/post-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pubky Playground: Your Data. Any App.">
+  <meta name="twitter:description" content="Pubky separates data from presentation. The same user-owned content can power any app format.">
+  <meta name="twitter:image" content="https://playground.pubky.org/post-image.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -272,6 +282,7 @@
     .code-fn { color: #60a5fa; }
     .code-str { color: #86efac; }
     .code-cm { color: var(--text-3); font-style: italic; }
+    .code-bool { color: #c084fc; }
 
     /* ═══════════════════════════════════
        POST LAYOUTS
@@ -1677,10 +1688,7 @@
       content: POST.content,
       kind: POST.kind,
       attachments: [
-        {
-          src: 'pubky://pk:gx9m.../pub/pubky.app/blobs/X9F2K...',
-          content_type: 'image/png'
-        }
+        'pubky://pk:gx9m.../pub/pubky.app/blobs/X9F2K3M0N1P2'
       ]
     };
 
@@ -1701,15 +1709,15 @@
       name: COLLECTION.name,
       description: COLLECTION.description,
       tags: COLLECTION.tags,
-      cover: 'pubky://pk:gx9m.../pub/pubky.app/blobs/COV3R...',
+      cover: 'pubky://pk:gx9m.../pub/pubky.app/blobs/COV3R0B4NN3R',
       is_public: true,
       items: [
-        'pubky://pk:gx9m.../pub/pubky.app/posts/0034A0MAR04',
-        'pubky://pk:gx9m.../pub/pubky.app/posts/0034B0MAR04',
-        'pubky://pk:gx9m.../pub/pubky.app/posts/0035C0MAR16',
-        'pubky://pk:gx9m.../pub/pubky.app/posts/0036D0MAR20',
-        'pubky://pk:gx9m.../pub/pubky.app/posts/0037E0MAR24',
-        'pubky://pk:gx9m.../pub/pubky.app/posts/0038F0MAR30'
+        'pubky://pk:gx9m.../pub/pubky.app/posts/0034A0M4R04SG',
+        'pubky://pk:gx9m.../pub/pubky.app/posts/0034B0M4R04SG',
+        'pubky://pk:gx9m.../pub/pubky.app/posts/0035C0M4R16SG',
+        'pubky://pk:gx9m.../pub/pubky.app/posts/0036D0M4R20SG',
+        'pubky://pk:gx9m.../pub/pubky.app/posts/0037E0M4R24SG',
+        'pubky://pk:gx9m.../pub/pubky.app/posts/0038F0M4R30SG'
       ]
     };
 
@@ -1767,9 +1775,8 @@ ${syntaxJSON(TAG_EXAMPLE)}
     }
 
     function renderColCode() {
-      const jsonBlock = `<span class="code-cm">// PubkyAppCollection — stored at</span>
+      const jsonBlock = `<span class="code-cm">// PubkyAppCollection (proposed spec)</span>
 <span class="code-cm">// /pub/pubky.app/collections/BLAKE3_HASH</span>
-<span class="code-cm">// ID = Blake3(name + created_at)[:half]</span>
 
 ${syntaxJSON(COLLECTION_CANONICAL)}
 
@@ -1780,7 +1787,7 @@ ${syntaxJSON(COLLECTION_CANONICAL)}
 
       const codeBlock = `<span class="code-kw">import</span> { Pubky } <span class="code-kw">from</span> <span class="code-str">"@synonymdev/pubky"</span>;
 
-<span class="code-cm">// Create a collection on your homeserver</span>
+<span class="code-cm">// Store a collection on your homeserver</span>
 <span class="code-kw">const</span> collection = {
   name: <span class="code-str">"${COLLECTION.name}"</span>,
   description: <span class="code-str">"Rebuilding coordination..."</span>,
