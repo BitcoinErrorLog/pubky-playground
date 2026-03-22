@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pubky Playground: Same Data, Different Interface</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0A0A0E;
+      --surface: #141419;
+      --surface-2: #1C1C23;
+      --surface-3: #24242D;
+      --border: #2A2A35;
+      --border-2: #35354A;
+      --text: #EDEDF0;
+      --text-2: #9494A8;
+      --text-3: #5E5E72;
+      --accent: #5B9A1E;
+      --accent-hover: #6DAF2A;
+      --accent-dim: rgba(91, 154, 30, 0.12);
+      --red: #FF4D6A;
+      --green: #34D399;
+      --blue: #60A5FA;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-serif: 'Lora', serif;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      background-image: radial-gradient(ellipse at 50% -20%, rgba(139,195,74,0.04) 0%, transparent 60%);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+    .page-wrapper {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ═══ HEADER ═══ */
+    .site-header {
+      text-align: center;
+      padding: 40px 0 24px;
+    }
+    .site-header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4.5vw, 3rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .site-header p {
+      color: var(--text-2);
+      font-size: 1.05rem;
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* ═══ TABS ═══ */
+    .tab-bar {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin: 22px 0 28px;
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 4px;
+      border: 1px solid var(--border);
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 12px 20px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      border-radius: 9px;
+      color: var(--text-3);
+      transition: color var(--transition), background var(--transition);
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      background: var(--surface-2);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .tab-btn:hover:not(.active) { color: var(--text-2); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ═══ TAB INTRO ═══ */
+    .tab-intro {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .tab-intro p {
+      color: var(--text-2);
+      font-size: 0.95rem;
+      max-width: 720px;
+      margin: 0 auto;
+      line-height: 1.55;
+    }
+
+    /* ═══ SWITCHER ═══ */
+    .switcher {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+    .switcher-track {
+      display: flex;
+      position: relative;
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 3px;
+      border: 1px solid var(--border);
+    }
+    .switcher-pill {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      height: calc(100% - 6px);
+      border-radius: 8px;
+      background: var(--accent);
+      transition: transform var(--transition), width var(--transition);
+      z-index: 0;
+    }
+    .switcher-btn {
+      position: relative;
+      z-index: 1;
+      padding: 8px 18px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      border-radius: 8px;
+      color: var(--text-2);
+      transition: color var(--transition);
+      white-space: nowrap;
+    }
+    .switcher-btn.active { color: #fff; font-weight: 600; }
+    .switcher-btn:hover:not(.active) { color: var(--text); }
+
+    /* ═══ FRAME WRAPPER ═══ */
+    .frame-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 580px;
+      margin-bottom: 24px;
+    }
+    .content-frame {
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      will-change: opacity, transform;
+    }
+    .content-frame.fading {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+
+    /* ═══ TAGLINE ═══ */
+    .tagline {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-3);
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+    .tagline strong {
+      color: var(--accent);
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    /* ═══ EXPANDABLE ═══ */
+    .expandable { margin-bottom: 24px; }
+    .cta-link {
+      text-align: center;
+      margin-bottom: 64px;
+      font-size: 0.9rem;
+      color: var(--text-2);
+    }
+    .cta-link a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .cta-link a:hover { text-decoration: underline; }
+    .expand-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 auto;
+      padding: 10px 20px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-2);
+      border: 1px solid var(--border-2);
+      border-radius: 8px;
+      background: var(--surface-2);
+      transition: background var(--transition), color var(--transition);
+    }
+    .expand-toggle:hover { background: var(--surface-3); color: var(--text); }
+    .expand-toggle .chevron {
+      display: inline-block;
+      transition: transform var(--transition);
+      font-size: 0.7rem;
+    }
+    .expandable.open .expand-toggle .chevron { transform: rotate(180deg); }
+    .expand-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.5s ease;
+      padding: 0 0;
+    }
+    .expandable.open .expand-content {
+      max-height: 900px;
+      padding: 20px 0 0;
+    }
+    .code-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .code-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .code-block-header {
+      padding: 10px 16px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .code-block pre {
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      line-height: 1.65;
+      overflow-x: auto;
+      color: var(--text-2);
+    }
+    .json-key { color: #7dd3fc; }
+    .json-str { color: #86efac; }
+    .json-num { color: #fbbf24; }
+    .json-bool { color: #c084fc; }
+    .code-kw { color: #c084fc; }
+    .code-fn { color: #60a5fa; }
+    .code-str { color: #86efac; }
+    .code-cm { color: var(--text-3); font-style: italic; }
+
+    /* ═══════════════════════════════════
+       POST LAYOUTS
+       ═══════════════════════════════════ */
+
+    .post-frame {
+      width: 460px;
+      max-width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    /* Avatar helper */
+    .av {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 0.7rem;
+      color: #fff;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .av img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Tag pill */
+    .tag-pill {
+      display: inline-block;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      border-radius: 20px;
+      background: var(--surface-3);
+      color: var(--text-2);
+    }
+
+    /* ── Instagram ── */
+    .ig-media {
+      width: 100%;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+    }
+    .ig-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      z-index: 2;
+      background: linear-gradient(rgba(0,0,0,0.5), transparent);
+    }
+    .ig-header .av { width: 32px; height: 32px; border: 1.5px solid rgba(255,255,255,0.5); }
+    .ig-header .name { font-size: 0.85rem; font-weight: 600; flex: 1; color: #fff; }
+    .ig-header .time { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+    .ig-media .media-badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      border-radius: 4px;
+      color: #fff;
+    }
+    .ig-media .media-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    }
+    .ig-media .media-ver {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.7);
+      font-weight: 400;
+    }
+    .ig-actions {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      gap: 16px;
+    }
+    .ig-actions .spacer { flex: 1; }
+    .ig-actions .act-icon { display: inline-flex; align-items: center; opacity: 0.85; transition: opacity 0.15s; }
+    .ig-actions .act-icon:hover { opacity: 1; }
+    .ig-tags {
+      display: inline-flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-left: 4px;
+    }
+    .ig-caption {
+      padding: 4px 16px 6px;
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+    .ig-caption .cap-name { font-weight: 600; margin-right: 6px; }
+    .ig-caption .cap-tags { color: #6EA8D7; }
+    .ig-comments {
+      padding: 2px 16px 12px;
+      font-size: 0.8rem;
+      color: var(--text-3);
+    }
+
+    /* ── X / Twitter ── */
+    .x-post { padding: 16px; display: flex; gap: 12px; }
+    .x-post .av { width: 40px; height: 40px; }
+    .x-body { flex: 1; min-width: 0; }
+    .x-header { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; flex-wrap: wrap; }
+    .x-header .name { font-size: 0.9rem; font-weight: 600; }
+    .x-header .handle { font-size: 0.85rem; color: var(--text-3); }
+    .x-header .sep { color: var(--text-3); font-size: 0.85rem; }
+    .x-header .time { font-size: 0.85rem; color: var(--text-3); }
+    .x-text {
+      font-size: 0.92rem;
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+    .x-media {
+      width: 100%;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .x-media .media-badge {
+      font-size: 0.55rem; font-weight: 700; letter-spacing: 0.1em;
+      padding: 3px 8px; background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+      border-radius: 4px; color: #fff;
+    }
+    .x-media .media-title {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 800;
+      color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+    .x-media .media-ver { font-size: 0.8rem; color: rgba(255,255,255,0.6); }
+    .x-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .x-metrics {
+      display: flex;
+      gap: 20px;
+      font-size: 0.8rem;
+      color: var(--text-3);
+    }
+    .x-metrics .xm { display: flex; align-items: center; gap: 5px; }
+    .x-metrics .xm:hover { color: var(--text-2); }
+    .x-metrics .xm-icon { display: inline-flex; align-items: center; }
+
+    /* ── Reddit ── */
+    .rd-post { display: flex; flex-direction: column; }
+    .rd-body { padding: 14px 16px; min-width: 0; }
+    .rd-author-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .rd-username { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+    .rd-dot { color: var(--text-3); font-size: 0.8rem; }
+    .rd-time { font-size: 0.8rem; color: var(--text-3); }
+    .rd-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      line-height: 1.35;
+      margin: 8px 0;
+    }
+    .rd-text {
+      font-size: 0.88rem;
+      color: var(--text-2);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .rd-media {
+      width: 100%;
+      aspect-ratio: 7/5.25;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .rd-media .media-badge {
+      font-size: 0.5rem; font-weight: 700; letter-spacing: 0.1em;
+      padding: 3px 7px; background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+      border-radius: 4px; color: #fff;
+    }
+    .rd-media .media-title {
+      font-family: var(--font-display); font-size: 1.2rem; font-weight: 800;
+      color: #fff;
+    }
+    .rd-tags { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .rd-flair {
+      font-size: 0.7rem; padding: 2px 8px; border-radius: 4px;
+      background: var(--accent-dim); color: var(--accent); font-weight: 500;
+    }
+    .rd-footer {
+      display: flex;
+      gap: 10px;
+      font-size: 0.78rem;
+      color: var(--text-3);
+      font-weight: 500;
+      margin-top: 12px;
+    }
+    .rd-footer > span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: var(--surface-2);
+    }
+    .rd-footer > span:hover { color: var(--text-2); background: var(--surface-3); }
+    .rd-footer > .reaction-tag { background: none; padding: 3px 10px; }
+    .rd-footer > .reaction-tag:hover { background: none; }
+
+    /* ── TikTok ── */
+    .tt-post {
+      width: 360px;
+      max-width: 100%;
+      aspect-ratio: 9/16;
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+    }
+    .tt-media {
+      position: absolute;
+      inset: 0;
+    }
+    .tt-media .media-badge {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em;
+      padding: 4px 10px; background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+      border-radius: 4px; color: #fff;
+    }
+    .tt-media .media-title {
+      font-family: var(--font-display); font-size: 2.2rem; font-weight: 800;
+      color: #fff; text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    }
+    .tt-media .media-ver {
+      font-size: 1rem; color: rgba(255,255,255,0.65);
+    }
+    .tt-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 50px;
+      padding: 20px 14px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7) 40%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .tt-author {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tt-author .av { width: 36px; height: 36px; border: 2px solid #fff; }
+    .tt-author .name { font-size: 0.9rem; font-weight: 700; }
+    .tt-caption {
+      font-size: 0.82rem;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .tt-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+    .tt-music {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .tt-music .music-note { animation: spin 3s linear infinite; display: inline-block; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .tt-side {
+      position: absolute;
+      bottom: 80px;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+    .tt-side-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .tt-side-btn .si { display: inline-flex; filter: drop-shadow(0 1px 6px rgba(0,0,0,0.5)); }
+    .tt-side-btn .sc { font-size: 0.7rem; font-weight: 600; }
+
+    /* ═══════════════════════════════════
+       COLLECTION LAYOUTS
+       ═══════════════════════════════════ */
+
+    .collection-frame {
+      width: 620px;
+      max-width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    /* Shared item thumbnail */
+    .item-thumb {
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .item-thumb .thumb-kind {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      color: rgba(255,255,255,0.85);
+    }
+
+    /* ── Podcast ── */
+    .pod-layout { padding: 28px; }
+    .pod-top { display: flex; gap: 24px; margin-bottom: 24px; align-items: flex-start; }
+    .pod-cover {
+      width: 180px;
+      height: 180px;
+      border-radius: 14px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .pod-cover .cover-icon { font-size: 2rem; }
+    .pod-cover .cover-title {
+      font-family: var(--font-display); font-size: 0.85rem;
+      font-weight: 700; color: #fff; text-align: center; padding: 0 10px;
+    }
+    .pod-info { flex: 1; min-width: 0; }
+    .pod-info .pod-type {
+      font-size: 0.7rem; color: var(--accent); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;
+    }
+    .pod-info .pod-title {
+      font-family: var(--font-display); font-size: 1.4rem;
+      font-weight: 700; margin-bottom: 4px; line-height: 1.2;
+    }
+    .pod-info .pod-creator { font-size: 0.85rem; color: var(--accent); margin-bottom: 6px; }
+    .pod-info .pod-desc { font-size: 0.82rem; color: var(--text-2); line-height: 1.45; margin-bottom: 10px; }
+    .pod-info .pod-stats { font-size: 0.78rem; color: var(--text-3); }
+    .pod-divider { height: 1px; background: var(--border); margin-bottom: 16px; }
+    .pod-section-label {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 14px;
+    }
+    .pod-episodes { display: flex; flex-direction: column; gap: 2px; }
+    .pod-ep {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 8px;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s;
+    }
+    .pod-ep:hover { background: var(--surface-2); }
+    .pod-ep .ep-play {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; flex-shrink: 0;
+    }
+    .pod-ep .ep-info { flex: 1; min-width: 0; }
+    .pod-ep .ep-title { font-size: 0.85rem; font-weight: 500; margin-bottom: 2px; }
+    .pod-ep .ep-meta { font-size: 0.75rem; color: var(--text-3); }
+    .pod-ep .ep-dur { font-size: 0.78rem; color: var(--text-3); white-space: nowrap; }
+
+    /* ── YouTube Channel ── */
+    .yt-layout {}
+    .yt-banner {
+      width: 100%;
+      aspect-ratio: 6/1;
+      display: flex;
+      align-items: flex-end;
+      padding: 14px 20px;
+    }
+    .yt-banner .banner-title {
+      font-family: var(--font-display); font-size: 1.6rem;
+      font-weight: 800; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+    }
+    .yt-channel-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .yt-channel-row .av { width: 44px; height: 44px; }
+    .yt-channel-info { flex: 1; }
+    .yt-channel-info .ch-name { font-size: 0.95rem; font-weight: 600; }
+    .yt-channel-info .ch-subs { font-size: 0.78rem; color: var(--text-3); }
+    .yt-subscribe {
+      padding: 8px 18px; border-radius: 20px;
+      background: var(--red); color: #fff;
+      font-size: 0.8rem; font-weight: 600;
+    }
+    .yt-tabs {
+      display: flex; gap: 0; border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+    }
+    .yt-tab {
+      padding: 10px 16px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-3);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .yt-tab.active { color: var(--text); border-bottom-color: var(--text); }
+    .yt-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      padding: 16px 20px;
+    }
+    .yt-video {}
+    .yt-thumb {
+      aspect-ratio: 16/9;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .yt-thumb .dur-badge {
+      position: absolute; bottom: 6px; right: 6px;
+      font-size: 0.65rem; font-weight: 600;
+      padding: 1px 5px; border-radius: 3px;
+      background: rgba(0,0,0,0.8); color: #fff;
+    }
+    .yt-thumb .play-icon {
+      font-size: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.15s;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .yt-video:hover .play-icon { opacity: 1; }
+    .yt-vid-title { font-size: 0.78rem; font-weight: 500; line-height: 1.35; margin-bottom: 4px; }
+    .yt-vid-meta { font-size: 0.7rem; color: var(--text-3); }
+
+    /* ── Spotify Album ── */
+    .sp-layout { padding: 24px; }
+    .sp-top { display: flex; gap: 24px; margin-bottom: 20px; align-items: flex-end; }
+    .sp-cover {
+      width: 180px; height: 180px; border-radius: 6px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 4px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .sp-cover .cover-icon { font-size: 2rem; }
+    .sp-cover .cover-title {
+      font-family: var(--font-display); font-size: 0.8rem;
+      font-weight: 700; color: #fff; text-align: center; padding: 0 10px;
+    }
+    .sp-info {}
+    .sp-info .sp-type {
+      font-size: 0.7rem; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 4px;
+    }
+    .sp-info .sp-title {
+      font-family: var(--font-display); font-size: 1.8rem;
+      font-weight: 800; margin-bottom: 6px; line-height: 1.1;
+    }
+    .sp-creator-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.82rem; margin-bottom: 4px;
+    }
+    .sp-creator-row .av { width: 22px; height: 22px; font-size: 0.5rem; }
+    .sp-creator-row .cr-name { font-weight: 600; }
+    .sp-info .sp-meta { font-size: 0.78rem; color: var(--text-3); margin-bottom: 14px; }
+    .sp-actions {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .sp-play-btn {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: #1DB954; color: #000;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700;
+    }
+    .sp-actions .sp-icon { font-size: 1.3rem; color: var(--text-3); }
+    .sp-divider { height: 1px; background: var(--border); margin-bottom: 12px; }
+    .sp-tracks {}
+    .sp-track {
+      display: flex; align-items: center; gap: 14px;
+      padding: 8px 4px; border-radius: 6px;
+      transition: background 0.15s;
+    }
+    .sp-track:hover { background: var(--surface-2); }
+    .sp-track .tr-num { width: 20px; text-align: right; font-size: 0.82rem; color: var(--text-3); }
+    .sp-track .tr-info { flex: 1; }
+    .sp-track .tr-title { font-size: 0.85rem; font-weight: 500; }
+    .sp-track .tr-sub { font-size: 0.75rem; color: var(--text-3); }
+    .sp-track .tr-dur { font-size: 0.8rem; color: var(--text-3); }
+
+    /* ── Pinterest Board ── */
+    .pin-layout {}
+    .pin-header {
+      padding: 20px 20px 14px;
+      text-align: center;
+    }
+    .pin-header .pin-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem; font-weight: 700; margin-bottom: 4px;
+    }
+    .pin-header .pin-meta { font-size: 0.8rem; color: var(--text-3); margin-bottom: 6px; }
+    .pin-header .pin-desc { font-size: 0.82rem; color: var(--text-2); margin-bottom: 8px; }
+    .pin-tags-row { display: flex; gap: 6px; justify-content: center; }
+    .pin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      padding: 10px 12px 16px;
+    }
+    .pin-card {
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .pin-card:hover { transform: scale(1.02); }
+    .pin-img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      display: flex;
+      align-items: flex-end;
+      padding: 10px;
+      position: relative;
+      overflow: hidden;
+      background: var(--surface-2);
+    }
+    .pin-img img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    .pin-img .pin-label {
+      position: relative;
+      z-index: 1;
+      font-size: 0.75rem; font-weight: 600; color: #fff;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+      line-height: 1.3;
+    }
+    .pin-save {
+      z-index: 1;
+      position: absolute; top: 8px; right: 8px;
+      background: var(--red); color: #fff;
+      padding: 4px 10px; border-radius: 16px;
+      font-size: 0.7rem; font-weight: 700;
+      opacity: 0; transition: opacity 0.15s;
+    }
+    .pin-card:hover .pin-save { opacity: 1; }
+
+    /* ── Medium Blog ── */
+    .med-layout { padding: 32px 28px; }
+    .med-header { margin-bottom: 24px; }
+    .med-header .med-title {
+      font-family: var(--font-serif);
+      font-size: 1.9rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+    .med-header .med-desc {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      color: var(--text-2);
+      line-height: 1.5;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+    .med-byline {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.82rem;
+    }
+    .med-byline .av { width: 28px; height: 28px; font-size: 0.55rem; }
+    .med-byline .by-name { font-weight: 600; }
+    .med-byline .by-sep { color: var(--text-3); }
+    .med-byline .by-follow { color: var(--green); font-weight: 500; }
+    .med-articles {}
+    .med-article {
+      padding: 20px 0;
+      border-top: 1px solid var(--border);
+    }
+    .med-article .art-title {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .med-article .art-preview {
+      font-size: 0.88rem;
+      color: var(--text-2);
+      line-height: 1.5;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .med-article .art-meta {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.75rem; color: var(--text-3);
+    }
+    .med-article .art-tag {
+      background: var(--surface-3);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+    }
+
+    /* ── X Moments ── */
+    .mom-layout {}
+    .mom-cover {
+      width: 100%;
+      aspect-ratio: 3/1;
+      display: flex;
+      align-items: flex-end;
+      padding: 20px;
+      position: relative;
+    }
+    .mom-cover::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(transparent 30%, rgba(0,0,0,0.7));
+    }
+    .mom-cover-content {
+      position: relative; z-index: 1;
+    }
+    .mom-cover-content .mom-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem; font-weight: 700; margin-bottom: 4px;
+    }
+    .mom-cover-content .mom-sub {
+      font-size: 0.8rem; color: rgba(255,255,255,0.7);
+    }
+    .mom-meta {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 20px;
+      font-size: 0.8rem;
+      color: var(--text-3);
+      border-bottom: 1px solid var(--border);
+    }
+    .mom-meta .av { width: 20px; height: 20px; font-size: 0.45rem; }
+    .mom-meta .mm-name { font-weight: 600; color: var(--text); }
+    .mom-cards { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .mom-card {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .mom-card:hover { background: var(--surface-2); }
+    .mom-card-body { flex: 1; min-width: 0; }
+    .mom-card .mc-title {
+      font-size: 0.88rem; font-weight: 500;
+      margin-bottom: 4px; line-height: 1.35;
+    }
+    .mom-card .mc-preview {
+      font-size: 0.78rem; color: var(--text-2);
+      line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .mom-card .mc-date { font-size: 0.72rem; color: var(--text-3); }
+    .mom-card-thumb {
+      width: 80px; height: 80px;
+      border-radius: 8px; flex-shrink: 0;
+    }
+
+    /* ── Google Photos ── */
+    .gp-layout { padding: 0; }
+    .gp-header {
+      padding: 20px 20px 8px;
+    }
+    .gp-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .gp-meta {
+      font-size: 0.8rem;
+      color: var(--text-3);
+    }
+    .gp-date-label {
+      padding: 10px 20px 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-2);
+    }
+    .gp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2px;
+      padding: 0 2px 2px;
+    }
+    .gp-photo {
+      aspect-ratio: 1;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .gp-photo:first-child {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+    .gp-photo:hover { opacity: 0.85; }
+
+    /* ── Lightbox ── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+    .lightbox.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: 8px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+      border: none;
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+
+    /* ═══ PUBKY TAGS ═══ */
+    .reaction-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 14px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border: 1px solid;
+      line-height: 1.3;
+    }
+    .reaction-tag .tag-count { opacity: 0.8; }
+    .rd-footer span svg { vertical-align: -2px; }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 700px) {
+      .code-columns { grid-template-columns: 1fr; }
+      .post-frame, .tt-post { width: 100%; }
+      .collection-frame { width: 100%; }
+      .yt-grid { grid-template-columns: 1fr 1fr; }
+      .pin-grid { grid-template-columns: 1fr 1fr; }
+      .sp-top { flex-direction: column; align-items: center; text-align: center; }
+      .sp-cover { width: 160px; height: 160px; }
+      .pod-top { flex-direction: column; align-items: center; text-align: center; }
+      .pod-cover { width: 160px; height: 160px; }
+      .switcher-btn { padding: 8px 10px; font-size: 0.72rem; }
+    }
+    @media (max-width: 480px) {
+      .site-header { padding: 36px 0 20px; }
+      .yt-grid { grid-template-columns: 1fr; }
+      .pin-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ═══ FOOTER ═══ */
+    .site-footer {
+      text-align: center;
+      padding: 40px 0 56px;
+      color: var(--text-3);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+    }
+    .site-footer a {
+      color: var(--text);
+      text-decoration: none;
+    }
+    .site-footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+
+    <header class="site-header">
+      <h1>Your Data. Any App.</h1>
+      <p>Pubky separates data from presentation. The same user-owned content can power any app format, because platforms are just arrangements of portable primitives.</p>
+    </header>
+
+    <nav class="tab-bar">
+      <button class="tab-btn active" data-tab="post">One Post, Many Apps</button>
+      <button class="tab-btn" data-tab="collection">One Collection, Many Products</button>
+    </nav>
+
+    <!-- ═══════════════════════════════
+         TAB 1: ONE POST, MANY APPS
+         ═══════════════════════════════ -->
+    <section class="tab-panel active" id="panel-post">
+      <div class="switcher">
+        <div class="switcher-track" id="post-switcher-track">
+          <div class="switcher-pill" id="post-pill"></div>
+          <button class="switcher-btn active" data-layout="instagram" data-index="0">Instagram</button>
+          <button class="switcher-btn" data-layout="x" data-index="1">X/Twitter</button>
+          <button class="switcher-btn" data-layout="reddit" data-index="2">Reddit</button>
+          <button class="switcher-btn" data-layout="tiktok" data-index="3">TikTok</button>
+        </div>
+      </div>
+
+      <div class="tab-intro">
+        <p>Pubky data is controlled by you. You choose the app experience you prefer. Social media <em>is</em> the web now.</p>
+      </div>
+
+      <div class="frame-wrapper">
+        <div class="content-frame" id="post-frame"></div>
+      </div>
+
+      <p class="tagline"><strong>Same data.</strong> Different interface.</p>
+
+      <div class="expandable" id="post-expandable">
+        <button class="expand-toggle" onclick="toggleExpand('post-expandable')">
+          View Canonical Data <span class="chevron">▼</span>
+        </button>
+        <div class="expand-content">
+          <div class="code-columns">
+            <div class="code-block">
+              <div class="code-block-header">Pubky Post: Canonical JSON</div>
+              <pre id="post-json"></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header">SDK: Read Any Post</div>
+              <pre id="post-code"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="cta-link">We are building all of this at <a href="https://pubky.app" target="_blank">Pubky.app</a>, come try it!</p>
+    </section>
+
+    <!-- ═══════════════════════════════
+         TAB 2: ONE COLLECTION, MANY PRODUCTS
+         ═══════════════════════════════ -->
+    <section class="tab-panel" id="panel-collection">
+      <div class="switcher">
+        <div class="switcher-track" id="col-switcher-track">
+          <div class="switcher-pill" id="col-pill"></div>
+          <button class="switcher-btn active" data-layout="podcast" data-index="0">Apple Podcast</button>
+          <button class="switcher-btn" data-layout="channel" data-index="1">YouTube Channel</button>
+          <button class="switcher-btn" data-layout="album" data-index="2">Spotify Album</button>
+          <button class="switcher-btn" data-layout="board" data-index="3">Pinterest Board</button>
+          <button class="switcher-btn" data-layout="blog" data-index="4">Medium Blog</button>
+          <button class="switcher-btn" data-layout="photos" data-index="5">Google Photos</button>
+        </div>
+      </div>
+
+      <div class="tab-intro">
+        <p>Collections are curated lists of any content type: podcasts, channels, albums, boards, and blogs.</p>
+      </div>
+
+      <div class="frame-wrapper">
+        <div class="content-frame" id="col-frame"></div>
+      </div>
+
+      <p class="tagline"><strong>Same data.</strong> Different product.</p>
+
+      <div class="expandable" id="col-expandable">
+        <button class="expand-toggle" onclick="toggleExpand('col-expandable')">
+          View Canonical Data <span class="chevron">▼</span>
+        </button>
+        <div class="expand-content">
+          <div class="code-columns">
+            <div class="code-block">
+              <div class="code-block-header">Pubky Collection: Canonical JSON</div>
+              <pre id="col-json"></pre>
+            </div>
+            <div class="code-block">
+              <div class="code-block-header">SDK: Store &amp; Read a Collection</div>
+              <pre id="col-code"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="cta-link">We are building all of this at <a href="https://pubky.app" target="_blank">Pubky.app</a>, come try it!</p>
+    </section>
+
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+      <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+      <img id="lightbox-img" src="" alt="">
+    </div>
+
+    <footer class="site-footer">
+      Built with <a href="https://pubky.org" target="_blank">Pubky Core</a>, the protocol where your public key is your identity and your data is yours.
+    </footer>
+
+  </div>
+
+  <script>
+    /* ═══════════════════════════════════
+       SVG ICONS
+       ═══════════════════════════════════ */
+
+    function icon(name, size = 18) {
+      const s = `<svg style="width:${size}px;height:${size}px;flex-shrink:0;vertical-align:middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">`;
+      const f = `<svg style="width:${size}px;height:${size}px;flex-shrink:0;vertical-align:middle" viewBox="0 0 24 24" fill="currentColor" stroke="none">`;
+      const icons = {
+        heart: s + '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+        comment: s + '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+        share: s + '<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>',
+        bookmark: s + '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
+        repost: s + '<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
+        tag: s + '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+        upvote: f + '<path d="M12 4l-7 7h4v9h6v-9h4z"/></svg>',
+        downvote: f + '<path d="M12 20l7-7h-4V4H9v9H5z"/></svg>',
+        music: f + '<path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>',
+        play: f + '<polygon points="5 3 19 12 5 21 5 3"/></svg>',
+      };
+      return icons[name] || '';
+    }
+
+    const isTextTag = (t) => /^[a-z0-9-]+$/i.test(t.label);
+
+    function av(author, size = 32) {
+      if (author.avatar) {
+        return `<div class="av" style="width:${size}px;height:${size}px"><img src="${author.avatar}" alt="${author.name}"></div>`;
+      }
+      return `<div class="av" style="width:${size}px;height:${size}px;background:${author.gradient}">${author.initial}</div>`;
+    }
+
+    function renderTag(tag) {
+      return `<span class="reaction-tag" style="background:${tag.color}18;border-color:${tag.color}35;color:${tag.color}">${tag.label} <span class="tag-count">${tag.count}</span></span>`;
+    }
+
+    /* ═══════════════════════════════════
+       DATA
+       ═══════════════════════════════════ */
+
+    const POST = {
+      author: {
+        name: 'Motoko Kusanagi',
+        shortPk: 'gx9m...k4re',
+        avatar: 'avatar.png',
+        gradient: 'linear-gradient(135deg, #6366F1, #06B6D4)',
+        initial: 'MK'
+      },
+      content: 'If a technological feat is possible, man will do it. Almost as if it\'s wired into the core of our being.',
+      title: 'Are you ready to unlock the web?',
+      kind: 'short',
+      media: {
+        src: 'post-image.png',
+        alt: 'Green glowing keyhole with crown'
+      },
+      tags: [
+        { label: 'pubky', count: 17, color: '#34D399' },
+        { label: '💯', count: 7, color: '#60A5FA' },
+        { label: '❤️', count: 5, color: '#FF4D6A' },
+        { label: '🔥', count: 3, color: '#FF9500' },
+      ],
+      timestamp: '2h',
+      replies: 47,
+      reposts: 3,
+      community: 'Decentralized Systems'
+    };
+
+    const COLLECTION = {
+      name: 'The Atomic Economy',
+      description: 'Rebuilding coordination from first principles — identity, markets, social intelligence, and the end of platform dependency.',
+      creator: {
+        name: 'Motoko Kusanagi',
+        shortPk: 'gx9m...k4re',
+        avatar: 'avatar.png',
+        gradient: 'linear-gradient(135deg, #6366F1, #06B6D4)',
+        initial: 'MK'
+      },
+      cover: 'col-banner.png',
+      followers: 2847,
+      tags: ['sovereignty', 'coordination', 'pubky'],
+      items: [
+        {
+          title: 'The Atomic Economy Doctrine',
+          kind: 'long',
+          desc: 'Human society is a coordination system. When coordination is monopolized, violence fills the gap. Every layer should be redesigned so fewer conflicts require force.',
+          duration: '25 min read',
+          date: 'Mar 4',
+          image: 'col-1.png',
+          tag: 'coordination'
+        },
+        {
+          title: 'Free Markets Require Social Intelligence',
+          kind: 'long',
+          desc: 'A free market begins with people perceiving, evaluating, and coordinating with each other without an authority mediating all of it. Social intelligence is the layer that makes this possible.',
+          duration: '18 min read',
+          date: 'Mar 4',
+          image: 'col-2.png',
+          tag: 'markets'
+        },
+        {
+          title: 'How to Fix the Web',
+          kind: 'long',
+          desc: 'Spam is not bad content — it\'s unwanted reach. The semantic social graph replaces centralized algorithms with user-controlled relevance. The platform doesn\'t own visibility anymore.',
+          duration: '12 min read',
+          date: 'Mar 16',
+          image: 'col-3.png',
+          tag: 'web'
+        },
+        {
+          title: 'Identity Without Intermediaries',
+          kind: 'video',
+          desc: 'Your public key is your identity. No usernames, no passwords, no platform accounts. Pubky makes self-sovereign identity practical and portable.',
+          duration: '22:15',
+          date: 'Mar 20',
+          image: 'col-4.png',
+          tag: 'identity'
+        },
+        {
+          title: 'The Semantic Social Graph',
+          kind: 'video',
+          desc: 'Tags, trust, and weighted relationships replace algorithmic feeds. Users define what counts as relevant — not platforms.',
+          duration: '31:40',
+          date: 'Mar 24',
+          image: 'col-5.png',
+          tag: 'social'
+        },
+        {
+          title: 'What Comes After Platforms',
+          kind: 'long',
+          desc: 'Platforms captured the web by centralizing data. Protocols will free it by decentralizing control. The data belongs to the user, not the interface.',
+          duration: '15 min read',
+          date: 'Mar 30',
+          image: 'col-6.png',
+          tag: 'protocols'
+        }
+      ]
+    };
+
+    /* ═══════════════════════════════════
+       POST RENDERERS
+       ═══════════════════════════════════ */
+
+    const postLayouts = {
+      instagram(d) {
+        return `
+          <div class="post-frame">
+            <div class="ig-media">
+              <img src="${d.media.src}" alt="${d.media.alt}" style="width:100%;height:100%;object-fit:cover;display:block">
+              <div class="ig-header">
+                ${av(d.author, 32)}
+                <span class="name">${d.author.name}</span>
+                <span class="time">${d.timestamp}</span>
+              </div>
+            </div>
+            <div class="ig-actions">
+              <span class="act-icon">${icon('comment', 24)}</span>
+              <span class="act-icon">${icon('share', 24)}</span>
+              <div class="ig-tags">${d.tags.map(renderTag).join('')}</div>
+              <span class="spacer"></span>
+              <span class="act-icon">${icon('bookmark', 24)}</span>
+            </div>
+            <div class="ig-caption">
+              <span class="cap-name">${d.author.name}</span>
+              ${d.content}
+            </div>
+            <div class="ig-comments">${icon('comment', 14)} View all ${d.replies} comments</div>
+          </div>`;
+      },
+
+      x(d) {
+        return `
+          <div class="post-frame">
+            <div class="x-post">
+              ${av(d.author, 40)}
+              <div class="x-body">
+                <div class="x-header">
+                  <span class="name">${d.author.name}</span>
+                  <span class="handle">${d.author.shortPk}</span>
+                  <span class="sep">·</span>
+                  <span class="time">${d.timestamp}</span>
+                </div>
+                <div class="x-text">${d.content}</div>
+                <div class="x-media">
+                  <img src="${d.media.src}" alt="${d.media.alt}" style="width:100%;display:block;border-radius:14px">
+                </div>
+                <div class="x-tags">${d.tags.map(renderTag).join('')}</div>
+                <div class="x-metrics">
+                  <span class="xm"><span class="xm-icon">${icon('comment', 16)}</span> ${d.replies}</span>
+                  <span class="xm"><span class="xm-icon">${icon('repost', 16)}</span> ${d.reposts}</span>
+                  <span class="xm"><span class="xm-icon">${icon('bookmark', 16)}</span></span>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      },
+
+      reddit(d) {
+        const score = d.tags.reduce((s, t) => s + t.count, 0);
+        return `
+          <div class="post-frame">
+            <div class="rd-post">
+              <div class="rd-body">
+                <div class="rd-author-row">
+                  ${av(d.author, 28)}
+                  <span class="rd-username">${d.author.shortPk}</span>
+                  <span class="rd-dot">·</span>
+                  <span class="rd-time">${d.timestamp}</span>
+                </div>
+                <div class="rd-title">${d.title || d.content}</div>
+                <div class="rd-text">${d.title ? d.content : ''}</div>
+                <div class="rd-tags">
+                  ${d.tags.filter(isTextTag).map(t => `<span class="rd-flair">${t.label}</span>`).join('')}
+                </div>
+                <div class="rd-media">
+                  <img src="${d.media.src}" alt="${d.media.alt}" style="width:100%;height:100%;object-fit:cover">
+                </div>
+                <div class="rd-footer">
+                  ${renderTag({ label: '👍', count: score, color: '#FF6B35' })}
+                  ${renderTag({ label: '👎', count: 4, color: '#60A5FA' })}
+                  <span>${icon('comment', 16)} ${d.replies}</span>
+                  <span>${icon('share', 16)} Share</span>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      },
+
+      tiktok(d) {
+        return `
+          <div class="tt-post" style="background:#000">
+            <div class="tt-media">
+              <img src="${d.media.src}" alt="${d.media.alt}" style="width:100%;height:100%;object-fit:cover">
+            </div>
+            <div class="tt-overlay">
+              <div class="tt-author">
+                ${av(d.author, 36)}
+                <span class="name">${d.author.shortPk}</span>
+              </div>
+              <div class="tt-caption">${d.content}</div>
+              <div class="tt-tags">${d.tags.map(renderTag).join('')}</div>
+              <div class="tt-music">${icon('music', 14)} Original audio — ${d.author.name}</div>
+            </div>
+            <div class="tt-side">
+              <div class="tt-side-btn"><span class="si">${icon('comment', 28)}</span><span class="sc">${d.replies}</span></div>
+              <div class="tt-side-btn"><span class="si">${icon('share', 28)}</span><span class="sc">${d.reposts}</span></div>
+              <div class="tt-side-btn"><span class="si">${icon('bookmark', 28)}</span><span class="sc"></span></div>
+            </div>
+          </div>`;
+      }
+    };
+
+    /* ═══════════════════════════════════
+       COLLECTION RENDERERS
+       ═══════════════════════════════════ */
+
+    const colLayouts = {
+      podcast(d) {
+        return `
+          <div class="collection-frame">
+            <div class="pod-layout">
+              <div class="pod-top">
+                <div class="pod-cover" style="background:url(${d.cover}) center/cover">
+                  <span class="cover-title">${d.name}</span>
+                </div>
+                <div class="pod-info">
+                  <div class="pod-type">Podcast</div>
+                  <div class="pod-title">${d.name}</div>
+                  <div class="pod-creator">${d.creator.name}</div>
+                  <div class="pod-desc">${d.description}</div>
+                  <div class="pod-stats">${d.followers.toLocaleString()} followers · ${d.items.length} episodes</div>
+                </div>
+              </div>
+              <div class="pod-divider"></div>
+              <div class="pod-section-label">Episodes</div>
+              <div class="pod-episodes">
+                ${d.items.map(it => `
+                  <div class="pod-ep">
+                    <div class="ep-play">${icon('play', 14)}</div>
+                    <div class="ep-info">
+                      <div class="ep-title">${it.title}</div>
+                      <div class="ep-meta">${it.date}${it.duration ? ' · ' + it.duration : ''}</div>
+                    </div>
+                    <div class="ep-dur">${it.duration || '—'}</div>
+                  </div>`).join('')}
+              </div>
+            </div>
+          </div>`;
+      },
+
+      channel(d) {
+        return `
+          <div class="collection-frame">
+            <div class="yt-layout">
+              <div class="yt-banner" style="background:url(${d.cover}) center/cover">
+                <span class="banner-title">${d.name}</span>
+              </div>
+              <div class="yt-channel-row">
+                ${av(d.creator, 44)}
+                <div class="yt-channel-info">
+                  <div class="ch-name">${d.creator.name}</div>
+                  <div class="ch-subs">${(d.followers / 1000).toFixed(1)}K subscribers</div>
+                </div>
+                <button class="yt-subscribe">Subscribe</button>
+              </div>
+              <div class="yt-tabs">
+                <div class="yt-tab active">Videos</div>
+                <div class="yt-tab">About</div>
+              </div>
+              <div class="yt-grid">
+                ${d.items.map(it => `
+                  <div class="yt-video">
+                    <div class="yt-thumb" style="background:url(${it.image}) center/cover">
+                      <span class="play-icon">${icon('play', 20)}</span>
+                      ${it.duration ? `<span class="dur-badge">${it.duration}</span>` : ''}
+                    </div>
+                    <div class="yt-vid-title">${it.title}</div>
+                    <div class="yt-vid-meta">${d.creator.name} · ${it.date}</div>
+                  </div>`).join('')}
+              </div>
+            </div>
+          </div>`;
+      },
+
+      album(d) {
+        return `
+          <div class="collection-frame">
+            <div class="sp-layout">
+              <div class="sp-top">
+                <div class="sp-cover" style="background:url(${d.cover}) center/cover">
+                  <span class="cover-title">${d.name}</span>
+                </div>
+                <div class="sp-info">
+                  <div class="sp-type">Collection</div>
+                  <div class="sp-title">${d.name}</div>
+                  <div class="sp-creator-row">
+                    ${av(d.creator, 22)}
+                    <span class="cr-name">${d.creator.name}</span>
+                  </div>
+                  <div class="sp-meta">2024 · ${d.items.length} tracks · ${d.followers.toLocaleString()} saves</div>
+                  <div class="sp-actions">
+                    <button class="sp-play-btn">${icon('play', 20)}</button>
+                    <span class="sp-icon">${icon('heart', 22)}</span>
+                    <span class="sp-icon">···</span>
+                  </div>
+                </div>
+              </div>
+              <div class="sp-divider"></div>
+              <div class="sp-tracks">
+                ${d.items.map((it, i) => `
+                  <div class="sp-track">
+                    <span class="tr-num">${i + 1}</span>
+                    <div class="tr-info">
+                      <div class="tr-title">${it.title}</div>
+                      <div class="tr-sub">${d.creator.name}</div>
+                    </div>
+                    <span class="tr-dur">${it.duration || '—'}</span>
+                  </div>`).join('')}
+              </div>
+            </div>
+          </div>`;
+      },
+
+      board(d) {
+        return `
+          <div class="collection-frame">
+            <div class="pin-layout">
+              <div class="pin-header">
+                <div class="pin-title">${d.name}</div>
+                <div class="pin-meta">${d.creator.name} · ${d.items.length} Pins · ${d.followers.toLocaleString()} followers</div>
+                <div class="pin-desc">${d.description}</div>
+                <div class="pin-tags-row">${d.tags.map(t => `<span class="tag-pill">${t}</span>`).join('')}</div>
+              </div>
+              <div class="pin-grid">
+                ${d.items.map(it => `
+                  <div class="pin-card">
+                    <div class="pin-img">
+                      <img src="${it.image}" alt="${it.title}">
+                      <span class="pin-label">${it.title}</span>
+                      <span class="pin-save">Save</span>
+                    </div>
+                  </div>`).join('')}
+              </div>
+            </div>
+          </div>`;
+      },
+
+      blog(d) {
+        return `
+          <div class="collection-frame">
+            <div class="med-layout">
+              <div class="med-header">
+                <div class="med-title">${d.name}</div>
+                <div class="med-desc">${d.description}</div>
+                <div class="med-byline">
+                  ${av(d.creator, 28)}
+                  <span class="by-name">${d.creator.name}</span>
+                  <span class="by-sep">·</span>
+                  <span class="by-follow">Follow</span>
+                </div>
+              </div>
+              <div class="med-articles">
+                ${d.items.map(it => `
+                  <div class="med-article">
+                    <div class="art-title">${it.title}</div>
+                    <div class="art-preview">${it.desc}</div>
+                    <div class="art-meta">
+                      <span>${it.date}</span>
+                      <span>·</span>
+                      <span>${it.duration || '3 min read'}</span>
+                      <span class="art-tag">${it.tag || d.tags[0]}</span>
+                    </div>
+                  </div>`).join('')}
+              </div>
+            </div>
+          </div>`;
+      },
+
+      photos(d) {
+        return `
+          <div class="collection-frame">
+            <div class="gp-layout">
+              <div class="gp-header">
+                <div class="gp-title">${d.name}</div>
+                <div class="gp-meta">${d.items.length} items · ${d.creator.name}</div>
+              </div>
+              <div class="gp-date-label">March 2026</div>
+              <div class="gp-grid">
+                ${d.items.map(it => `
+                  <div class="gp-photo" style="background:url(${it.image}) center/cover" onclick="openLightbox('${it.image}')">
+                  </div>`).join('')}
+              </div>
+            </div>
+          </div>`;
+      }
+    };
+
+    /* ═══════════════════════════════════
+       CODE PANELS
+       ═══════════════════════════════════ */
+
+    const POST_CANONICAL = {
+      content: POST.content,
+      kind: POST.kind,
+      attachments: [
+        {
+          src: 'pubky://pk:gx9m.../pub/pubky.app/blobs/X9F2K...',
+          content_type: 'image/png'
+        }
+      ]
+    };
+
+    const POST_PROFILE = {
+      name: POST.author.name,
+      bio: 'My ghost, my shell, my keys.',
+      image: 'pubky://pk:gx9m.../pub/pubky.app/blobs/AVATAR',
+      links: [{ title: 'Section 9', url: 'https://example.net' }]
+    };
+
+    const TAG_EXAMPLE = {
+      uri: 'pubky://pk:gx9m.../pub/pubky.app/posts/ID',
+      label: '❤️',
+      created_at: 1711234567
+    };
+
+    const COLLECTION_CANONICAL = {
+      name: COLLECTION.name,
+      description: COLLECTION.description,
+      tags: COLLECTION.tags,
+      cover: 'pubky://pk:gx9m.../pub/pubky.app/blobs/COV3R...',
+      is_public: true,
+      items: [
+        'pubky://pk:gx9m.../pub/pubky.app/posts/0034A0MAR04',
+        'pubky://pk:gx9m.../pub/pubky.app/posts/0034B0MAR04',
+        'pubky://pk:gx9m.../pub/pubky.app/posts/0035C0MAR16',
+        'pubky://pk:gx9m.../pub/pubky.app/posts/0036D0MAR20',
+        'pubky://pk:gx9m.../pub/pubky.app/posts/0037E0MAR24',
+        'pubky://pk:gx9m.../pub/pubky.app/posts/0038F0MAR30'
+      ]
+    };
+
+    function syntaxJSON(obj) {
+      return JSON.stringify(obj, null, 2)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"([^"]+)"(\s*:)/g, '<span class="json-key">"$1"</span>$2')
+        .replace(/:\s*"([^"]*)"/g, ': <span class="json-str">"$1"</span>')
+        .replace(/:\s*(\d+)/g, ': <span class="json-num">$1</span>')
+        .replace(/:\s*(true|false|null)/g, ': <span class="json-bool">$1</span>');
+    }
+
+    function renderPostCode() {
+      const jsonBlock = `<span class="code-cm">// PubkyAppPost — stored at</span>
+<span class="code-cm">// /pub/pubky.app/posts/0033X02JAN0SG</span>
+
+${syntaxJSON(POST_CANONICAL)}
+
+<span class="code-cm">// PubkyAppUser — stored at</span>
+<span class="code-cm">// /pub/pubky.app/profile.json</span>
+
+${syntaxJSON(POST_PROFILE)}
+
+<span class="code-cm">// Tags are stored separately per user:</span>
+<span class="code-cm">// /pub/pubky.app/tags/TAG_HASH</span>
+
+${syntaxJSON(TAG_EXAMPLE)}
+
+<span class="code-cm">// No "likes" — reactions are tags too.</span>
+<span class="code-cm">// No "handles" — identity is a public key.</span>`;
+
+      const codeBlock = `<span class="code-kw">import</span> { Pubky } <span class="code-kw">from</span> <span class="code-str">"@synonymdev/pubky"</span>;
+
+<span class="code-kw">const</span> pubky = Pubky.<span class="code-fn">testnet</span>();
+
+<span class="code-cm">// Read any user's public post</span>
+<span class="code-kw">const</span> post = <span class="code-kw">await</span> pubky.publicStorage.<span class="code-fn">getJson</span>(
+  <span class="code-str">\`pubky\${authorPk}/pub/pubky.app/posts/ID\`</span>
+);
+
+<span class="code-cm">// Read their profile</span>
+<span class="code-kw">const</span> profile = <span class="code-kw">await</span> pubky.publicStorage.<span class="code-fn">getJson</span>(
+  <span class="code-str">\`pubky\${authorPk}/pub/pubky.app/profile.json\`</span>
+);
+
+<span class="code-cm">// Tags applied to this post (via indexer)</span>
+<span class="code-cm">// Each tag has a label + count of taggers</span>
+<span class="code-cm">// Apps interpret tags as they see fit:</span>
+<span class="code-cm">//   Instagram → reaction pills</span>
+<span class="code-cm">//   Reddit → 👍👎 as vote score</span>
+<span class="code-cm">//   TikTok → tag pills in overlay</span>`;
+
+      document.getElementById('post-json').innerHTML = jsonBlock;
+      document.getElementById('post-code').innerHTML = codeBlock;
+    }
+
+    function renderColCode() {
+      const jsonBlock = `<span class="code-cm">// PubkyAppCollection — stored at</span>
+<span class="code-cm">// /pub/pubky.app/collections/BLAKE3_HASH</span>
+<span class="code-cm">// ID = Blake3(name + created_at)[:half]</span>
+
+${syntaxJSON(COLLECTION_CANONICAL)}
+
+<span class="code-cm">// Items are post URIs (pubky:// addresses).</span>
+<span class="code-cm">// Posts are PubkyAppPost objects stored at</span>
+<span class="code-cm">// /pub/pubky.app/posts/TIMESTAMP_ID</span>
+<span class="code-cm">// Any user's posts can be in any collection.</span>`;
+
+      const codeBlock = `<span class="code-kw">import</span> { Pubky } <span class="code-kw">from</span> <span class="code-str">"@synonymdev/pubky"</span>;
+
+<span class="code-cm">// Create a collection on your homeserver</span>
+<span class="code-kw">const</span> collection = {
+  name: <span class="code-str">"${COLLECTION.name}"</span>,
+  description: <span class="code-str">"Rebuilding coordination..."</span>,
+  tags: [<span class="code-str">"sovereignty"</span>, <span class="code-str">"coordination"</span>],
+  cover: <span class="code-str">"pubky://pk:gx9m.../blobs/COV3R"</span>,
+  is_public: <span class="code-bool">true</span>,
+  items: [
+    <span class="code-str">"pubky://pk:gx9m.../posts/0034A"</span>,
+    <span class="code-str">"pubky://pk:gx9m.../posts/0034B"</span>,
+    <span class="code-cm">// posts from any user by URI</span>
+  ]
+};
+
+<span class="code-kw">await</span> session.storage.<span class="code-fn">putJson</span>(
+  <span class="code-str">"/pub/pubky.app/collections/HASH_ID"</span>,
+  collection
+);
+
+<span class="code-cm">// Read anyone's collection</span>
+<span class="code-kw">const</span> col = <span class="code-kw">await</span> pubky.publicStorage.<span class="code-fn">getJson</span>(
+  <span class="code-str">\`pubky\${pk}/pub/pubky.app/collections/ID\`</span>
+);
+
+<span class="code-cm">// Resolve items → full post objects</span>
+<span class="code-kw">const</span> posts = <span class="code-kw">await</span> Promise.<span class="code-fn">all</span>(
+  col.items.<span class="code-fn">map</span>(uri =>
+    pubky.publicStorage.<span class="code-fn">getJson</span>(uri)
+  )
+);
+
+<span class="code-cm">// Same data powers any layout:</span>
+<span class="code-cm">// Podcast, Channel, Album, Board,</span>
+<span class="code-cm">// Blog, or Photo Album.</span>`;
+
+      document.getElementById('col-json').innerHTML = jsonBlock;
+      document.getElementById('col-code').innerHTML = codeBlock;
+    }
+
+    /* ═══════════════════════════════════
+       SWITCHER + TRANSITIONS
+       ═══════════════════════════════════ */
+
+    function initSwitcherPill(trackId, pillId, count) {
+      const track = document.getElementById(trackId);
+      const pill = document.getElementById(pillId);
+      const btns = track.querySelectorAll('.switcher-btn');
+      if (!btns.length) return;
+
+      function updatePill(idx) {
+        const btn = btns[idx];
+        const trackRect = track.getBoundingClientRect();
+        const btnRect = btn.getBoundingClientRect();
+        pill.style.width = btnRect.width + 'px';
+        pill.style.transform = `translateX(${btnRect.left - trackRect.left - 3}px)`;
+      }
+
+      updatePill(0);
+      window.addEventListener('resize', () => {
+        const activeBtn = track.querySelector('.switcher-btn.active');
+        if (activeBtn) updatePill(parseInt(activeBtn.dataset.index));
+      });
+
+      return updatePill;
+    }
+
+    function switchLayout(frameId, renderFn, data, layout, pillUpdater, btnIndex, btns) {
+      const frame = document.getElementById(frameId);
+      frame.classList.add('fading');
+
+      btns.forEach(b => b.classList.remove('active'));
+      btns[btnIndex].classList.add('active');
+      pillUpdater(btnIndex);
+
+      setTimeout(() => {
+        frame.innerHTML = renderFn(data);
+        requestAnimationFrame(() => {
+          frame.classList.remove('fading');
+        });
+      }, 220);
+    }
+
+    /* ═══════════════════════════════════
+       INIT
+       ═══════════════════════════════════ */
+
+    const postPillUpdate = initSwitcherPill('post-switcher-track', 'post-pill', 4);
+    const colPillUpdate = initSwitcherPill('col-switcher-track', 'col-pill', 6);
+
+    const postBtns = document.querySelectorAll('#post-switcher-track .switcher-btn');
+    const colBtns = document.querySelectorAll('#col-switcher-track .switcher-btn');
+
+    postBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.classList.contains('active')) return;
+        const layout = btn.dataset.layout;
+        switchLayout('post-frame', postLayouts[layout], POST, layout, postPillUpdate, parseInt(btn.dataset.index), postBtns);
+        document.querySelector('.tab-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    colBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.classList.contains('active')) return;
+        const layout = btn.dataset.layout;
+        switchLayout('col-frame', colLayouts[layout], COLLECTION, layout, colPillUpdate, parseInt(btn.dataset.index), colBtns);
+        document.querySelector('.tab-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // Tab switching
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        panels.forEach(p => {
+          p.classList.toggle('active', p.id === 'panel-' + tab);
+        });
+        document.querySelector('.tab-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (tab === 'collection') {
+          setTimeout(() => {
+            const activeColBtn = document.querySelector('#col-switcher-track .switcher-btn.active');
+            if (activeColBtn) colPillUpdate(parseInt(activeColBtn.dataset.index));
+          }, 50);
+        }
+      });
+    });
+
+    // Expandable
+    window.toggleExpand = function(id) {
+      document.getElementById(id).classList.toggle('open');
+    };
+
+    // Lightbox
+    window.openLightbox = function(src) {
+      const lb = document.getElementById('lightbox');
+      document.getElementById('lightbox-img').src = src;
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    };
+    window.closeLightbox = function() {
+      const lb = document.getElementById('lightbox');
+      lb.classList.remove('open');
+      document.body.style.overflow = '';
+    };
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    // Initial render
+    document.getElementById('post-frame').innerHTML = postLayouts.instagram(POST);
+    document.getElementById('col-frame').innerHTML = colLayouts.podcast(COLLECTION);
+    renderPostCode();
+    renderColCode();
+  </script>
+</body>
+</html>
